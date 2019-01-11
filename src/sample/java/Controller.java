@@ -1,5 +1,6 @@
 package sample.java;
 
+import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.control.Label;
 import javafx.scene.input.*;
@@ -13,6 +14,7 @@ public class Controller {
 	public Circle daCircle;
 	public Label statusLabel;
 	public Rectangle canNotTouchThis;
+	final private double speed = 2;
 
 	public void doDrag(MouseEvent mouseEvent) {
 		Dragboard dragboard = daCircle.startDragAndDrop(TransferMode.MOVE);
@@ -69,9 +71,10 @@ public class Controller {
 		// Reset color.
 		statusLabel.setTextFill(Color.web("#27610b"));
 
-		if (this.checkForCollision()){
+		if (this.checkForCollision(keyEvent.getCode())) {
 			keyEvent.consume();
-			System.out.println("Oops, collision!");
+			statusLabel.setText("What exactly do you think you're trying to do?!");
+			statusLabel.setTextFill(Color.web("#ff451f"));
 			return;
 		}
 
@@ -79,25 +82,25 @@ public class Controller {
 			case W:
 			case UP:
 				statusLabel.setText("Moving up");
-				daCircle.setLayoutY(daCircle.getLayoutY() - 1);
+				daCircle.setLayoutY(daCircle.getLayoutY() - speed);
 				break;
 
 			case A:
 			case LEFT:
 				statusLabel.setText("Moving left");
-				daCircle.setLayoutX(daCircle.getLayoutX() - 1);
+				daCircle.setLayoutX(daCircle.getLayoutX() - speed);
 				break;
 
 			case S:
 			case DOWN:
 				statusLabel.setText("Moving down");
-				daCircle.setLayoutY(daCircle.getLayoutY() + 1);
+				daCircle.setLayoutY(daCircle.getLayoutY() + speed);
 				break;
 
 			case D:
 			case RIGHT:
 				statusLabel.setText("Moving right");
-				daCircle.setLayoutX(daCircle.getLayoutX() + 1);
+				daCircle.setLayoutX(daCircle.getLayoutX() + speed);
 				break;
 
 			default:
@@ -110,21 +113,70 @@ public class Controller {
 	/**
 	 * Check for collision with a pseudo-circle - this is to avoid entering the collision state with the actual
 	 * circle object, which would prevent further operability.
+	 *
+	 * @param code
 	 */
-	private boolean checkForCollision() {
+	private boolean checkForCollision(KeyCode code) {
 		boolean collision = false;
 
-		// @todo: here's the thing - we need to prevent, not detect, so either daCircle or canNotTouchThis must
-		// use the future collision potential coordinates for this check - but I have to also convert back and forth,
-		// and Bounds don't have... methods... and... and... eugh.
-		Bounds obstacleBounds = canNotTouchThis.localToScene(canNotTouchThis.getBoundsInLocal());
-		if (daCircle.intersects(daCircle.sceneToLocal(obstacleBounds))){
-			daCircle.setLayoutX(daCircle.getLayoutX()-1);
-			daCircle.setLayoutY(daCircle.getLayoutY()-1);
-			statusLabel.setText("What exactly do you think you're trying to do?!");
-			statusLabel.setTextFill(Color.web("#ff451f"));
-			collision = true;
+		Bounds paneBounds = mainPane.getLayoutBounds();
+		Bounds circleBounds = daCircle.getBoundsInParent();
+		Bounds obstacleBounds = canNotTouchThis.getBoundsInParent();
+
+		Bounds b;
+		boolean paneCollision = false;
+
+		switch (code) {
+			case W:
+			case UP:
+				b = new BoundingBox(
+						circleBounds.getMinX(),
+						circleBounds.getMinY() - speed,
+						circleBounds.getWidth(),
+						circleBounds.getHeight());
+				paneCollision = (paneBounds.getMinY() > (circleBounds.getMinY() + speed));
+				break;
+
+			case A:
+			case LEFT:
+				b = new BoundingBox(
+						circleBounds.getMinX() - speed,
+						circleBounds.getMinY(),
+						circleBounds.getWidth(),
+						circleBounds.getHeight());
+				paneCollision = (paneBounds.getMinX() > (circleBounds.getMinX() + speed));
+				break;
+
+			case S:
+			case DOWN:
+				b = new BoundingBox(
+						circleBounds.getMinX(),
+						circleBounds.getMinY() + speed,
+						circleBounds.getWidth(),
+						circleBounds.getHeight());
+				paneCollision = (paneBounds.getMaxY() < (circleBounds.getMaxY() + speed));
+				break;
+
+			case D:
+			case RIGHT:
+				b = new BoundingBox(
+						circleBounds.getMinX() + speed,
+						circleBounds.getMinY(),
+						circleBounds.getWidth(),
+						circleBounds.getHeight());
+				paneCollision = (paneBounds.getMaxX() < (circleBounds.getMaxX() + speed));
+				break;
+
+			default:
+				b = new BoundingBox(
+						circleBounds.getMinX(),
+						circleBounds.getMinY(),
+						circleBounds.getWidth(),
+						circleBounds.getHeight());
+				break;
 		}
+		collision = obstacleBounds.intersects(b) || paneCollision;
+
 		return collision;
 	}
 }
