@@ -1,0 +1,6 @@
+.infocus {
+  /*-fx-background-color: #ff21f4;*/
+  -fx-border-color: #ff21f4;
+  -fx-border-style: solid;
+  -fx-border-width: 3;
+}
