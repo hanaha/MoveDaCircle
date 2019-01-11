@@ -6,6 +6,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
 
 <GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.java.Controller">
    <columnConstraints>
@@ -23,6 +24,7 @@
          <children>
             <Circle fx:id="daCircle" fill="#ff451f" focusTraversable="true" layoutX="171.0" layoutY="157.0" onDragDetected="#doDrag" onDragDone="#stopDrag" onKeyPressed="#doWasd" radius="34.0" stroke="#f5d835" strokeType="INSIDE" strokeWidth="3.0" />
             <Label fx:id="statusLabel" layoutX="14.0" layoutY="14.0" prefHeight="17.0" prefWidth="610.0" text="Hey! Psst, kid! Do WASD!" textFill="#27610b" />
+            <Rectangle fx:id="canNotTouchThis" arcHeight="5.0" arcWidth="5.0" fill="#276e03" height="184.0" layoutX="293.0" layoutY="191.0" stroke="BLACK" strokeType="INSIDE" strokeWidth="0.0" width="180.0" />
          </children>
       </Pane>
    </children>
